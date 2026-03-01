@@ -35,7 +35,8 @@ const AdminCourses = () => {
             fetchCourses();
             alert('Course created successfully! 🚀');
         } catch (error) {
-            alert('Error creating course');
+            console.error('Error creating course:', error);
+            alert(error.response?.data?.message || 'Error creating course');
         }
     };
 

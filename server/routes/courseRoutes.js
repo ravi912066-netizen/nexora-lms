@@ -16,16 +16,32 @@ router.get('/', protect, async (req, res) => {
 
 // Create a course (Admin only)
 router.post('/', protect, admin, async (req, res) => {
-    const { title, description } = req.body;
+    const { title, description, price } = req.body;
     try {
-        const course = await Course.create({ title, description, instructor: req.user._id });
+        const course = await Course.create({
+            title,
+            description,
+            price: price || 0,
+            instructor: req.user._id
+        });
         res.status(201).json(course);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
 
-// Get single course with lectures
+// NEW: Get basic course info (for locking screen)
+router.get('/basic/:id', protect, async (req, res) => {
+    try {
+        const course = await Course.findById(req.params.id).select('title description price');
+        if (!course) return res.status(404).json({ message: 'Course not found' });
+        res.json(course);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Get single course with lectures (Full details)
 router.get('/:id', protect, async (req, res) => {
     try {
         const course = await Course.findById(req.params.id);
