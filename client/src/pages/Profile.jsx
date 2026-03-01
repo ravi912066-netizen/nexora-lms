@@ -10,6 +10,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
 import ActivityTracker from '../components/profile/ActivityTracker';
+import CodingStats from '../components/profile/CodingStats';
 
 const Profile = () => {
     const { user, login } = useAuth();
@@ -228,6 +229,17 @@ const Profile = () => {
                     <HandleBadge platform="GFG" handle={user?.gfgHandle} verified={user?.isVerifiedGFG} />
                 </div>
             </div>
+
+            {/* Coding Stats - Real API Data */}
+            {(user?.codeforcesHandle || user?.leetcodeHandle || user?.gfgHandle) && (
+                <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 shadow-sm">
+                    <CodingStats
+                        codeforcesHandle={user?.codeforcesHandle}
+                        leetcodeHandle={user?.leetcodeHandle}
+                        gfgHandle={user?.gfgHandle}
+                    />
+                </div>
+            )}
 
             {/* Profile & Intel Hub */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
