@@ -13,6 +13,11 @@ Nexora is a high-performance Learning Management System with integrated live cla
 - **Frontend**: React, Vite, Tailwind CSS v4, Lucide Icons, Axios.
 - **Backend**: Node.js, Express, MongoDB, JWT.
 
+## 🚀 Quick Deploy
+
+[![Deploy to Render](https://render.com/images/deploy-to-render.svg)](https://render.com/deploy?repo=https://github.com/ravi912066-netizen/nexora-lms)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/ravi912066-netizen/nexora-lms&root-directory=client&env=VITE_API_URL)
+
 ---
 
 ## 🚀 How to Get Your Live URL
