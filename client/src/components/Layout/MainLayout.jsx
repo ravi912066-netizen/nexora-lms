@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
-import { Outlet, useNavigate, Link } from 'react-router-dom';
+import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { LayoutDashboard, BookOpen, FileText, BarChart2, Calendar, LogOut, Menu, X, BrainCircuit, Users, User, CreditCard, MessageSquare } from 'lucide-react';
-import AIDoubtAssistant from '../AIDoubtAssistant'; // Added
+import {
+    LayoutDashboard, BookOpen, FileText, BarChart2, LogOut,
+    Menu, X, Users, User, CreditCard, MessageSquare, Zap,
+    ChevronRight, Bell, Search
+} from 'lucide-react';
+import AIDoubtAssistant from '../AIDoubtAssistant';
 import clsx from 'clsx';
 
 const MainLayout = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const isAdmin = user?.role === 'admin';
@@ -24,7 +29,7 @@ const MainLayout = () => {
         { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
         { name: 'Manage Courses', icon: BookOpen, path: '/admin/courses' },
         { name: 'Enrollment Requests', icon: CreditCard, path: '/admin/enrollments' },
-        { name: 'Student Doubts', icon: MessageSquare, path: '/admin/doubts' }, // Added
+        { name: 'Student Doubts', icon: MessageSquare, path: '/admin/doubts' },
         { name: 'Assignments', icon: FileText, path: '/admin/assignments' },
         { name: 'Students', icon: Users, path: '/admin/students' },
         { name: 'Profile', icon: User, path: '/profile' },
@@ -37,109 +42,127 @@ const MainLayout = () => {
         navigate('/login');
     };
 
+    const isActive = (path) => {
+        if (path === '/') return location.pathname === '/';
+        return location.pathname.startsWith(path);
+    };
+
     return (
-        <div className="min-h-screen bg-slate-50 flex font-sans">
-            {/* Mobile Sidebar Overlay */}
+        <div className="min-h-screen bg-[#F7F8FC] flex font-sans">
+            {/* Mobile overlay */}
             {sidebarOpen && (
-                <div
-                    className="fixed inset-0 bg-slate-900/50 z-20 lg:hidden backdrop-blur-sm"
-                    onClick={() => setSidebarOpen(false)}
-                />
+                <div className="fixed inset-0 bg-black/40 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
             )}
 
             {/* Sidebar */}
             <aside className={clsx(
-                "fixed lg:static top-0 left-0 z-30 h-screen w-72 bg-white border-r border-slate-200 transition-transform duration-300 ease-in-out flex flex-col shadow-sm",
+                "fixed lg:static top-0 left-0 z-30 h-screen w-64 bg-white border-r border-gray-100 transition-transform duration-300 ease-in-out flex flex-col",
                 sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
             )}>
-                <div className="h-20 flex items-center px-8 border-b border-slate-100">
-                    <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white mr-3 shadow-lg shadow-blue-200">
-                        <BrainCircuit size={24} />
+                {/* Logo */}
+                <div className="h-16 flex items-center px-6 border-b border-gray-100">
+                    <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
+                        <Zap size={18} className="text-white" fill="white" />
                     </div>
-                    <span className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-indigo-700 tracking-tight">Nexora Edu</span>
+                    <span className="text-lg font-bold text-gray-900">Nexora</span>
                     <button className="ml-auto lg:hidden" onClick={() => setSidebarOpen(false)}>
-                        <X size={20} className="text-slate-500" />
+                        <X size={20} className="text-gray-400" />
                     </button>
                 </div>
 
-                <nav className="flex-1 py-10 px-6 space-y-2 overflow-y-auto custom-scrollbar">
-                    <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Command Center</p>
+                {/* Nav */}
+                <nav className="flex-1 py-6 px-3 overflow-y-auto space-y-1">
+                    <p className="px-3 text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                        {isAdmin ? 'Admin Controls' : 'Navigation'}
+                    </p>
                     {links.map((link) => {
                         const Icon = link.icon;
-                        const isActive = window.location.pathname === link.path;
+                        const active = isActive(link.path);
                         return (
                             <Link
                                 key={link.name}
                                 to={link.path}
+                                onClick={() => setSidebarOpen(false)}
                                 className={clsx(
-                                    "flex items-center px-5 py-4 text-sm rounded-[1.5rem] transition-all duration-300 group",
-                                    isActive
-                                        ? "bg-blue-600 text-white font-black shadow-xl shadow-blue-100 translate-x-1"
-                                        : "text-slate-500 hover:bg-slate-50 hover:text-slate-900 hover:translate-x-1"
+                                    "flex items-center gap-3 px-4 py-3 text-sm rounded-xl transition-all font-medium",
+                                    active
+                                        ? "bg-blue-600 text-white shadow-md shadow-blue-200"
+                                        : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
                                 )}
                             >
-                                <Icon size={20} className={clsx("mr-4 transition-colors", isActive ? "text-white" : "text-slate-400 group-hover:text-blue-500")} />
-                                <span className="tracking-tight">{link.name}</span>
+                                <Icon size={18} className={active ? 'text-white' : 'text-gray-400'} />
+                                <span>{link.name}</span>
+                                {active && <ChevronRight size={14} className="ml-auto text-blue-200" />}
                             </Link>
-                        )
+                        );
                     })}
                 </nav>
 
-                <div className="p-6 border-t border-slate-100">
+                {/* User info + logout */}
+                <div className="p-4 border-t border-gray-100">
+                    <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 mb-3">
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm overflow-hidden flex-shrink-0">
+                            {user?.profilePicture
+                                ? <img src={user.profilePicture} alt="" className="w-full h-full object-cover" />
+                                : user?.name?.charAt(0).toUpperCase()
+                            }
+                        </div>
+                        <div className="min-w-0">
+                            <p className="text-sm font-semibold text-gray-900 truncate">{user?.name}</p>
+                            <p className="text-xs text-gray-400 capitalize">{user?.role}</p>
+                        </div>
+                    </div>
                     <button
                         onClick={handleLogout}
-                        className="flex items-center justify-center w-full px-5 py-4 text-xs font-black uppercase tracking-widest text-red-600 bg-red-50 hover:bg-red-600 hover:text-white rounded-2xl transition-all duration-300 shadow-sm"
+                        className="flex items-center gap-2 w-full px-4 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 rounded-xl transition-colors"
                     >
-                        <LogOut size={16} className="mr-3" />
-                        System Logout
+                        <LogOut size={16} />
+                        Sign out
                     </button>
                 </div>
             </aside>
 
-            {/* Main Content */}
-            <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
-                {/* Top Navbar */}
-                <header className="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-6 sm:px-10 z-10 shadow-sm">
-                    <button
-                        className="lg:hidden p-3 text-slate-500 hover:bg-slate-100 rounded-2xl transition-colors"
-                        onClick={() => setSidebarOpen(true)}
-                    >
-                        <Menu size={24} />
-                    </button>
+            {/* Main */}
+            <main className="flex-1 flex flex-col min-w-0">
+                {/* Top bar */}
+                <header className="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-4 sm:px-8 sticky top-0 z-10">
+                    <div className="flex items-center gap-4">
+                        <button className="lg:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-lg" onClick={() => setSidebarOpen(true)}>
+                            <Menu size={20} />
+                        </button>
+                        <div className="hidden sm:flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 w-72">
+                            <Search size={16} className="text-gray-400" />
+                            <input placeholder="Search courses, assignments..." className="bg-transparent text-sm outline-none text-gray-700 placeholder-gray-400 w-full" readOnly />
+                        </div>
+                    </div>
 
-                    <div className="ml-auto flex items-center gap-6">
-                        <Link to="/profile" className="hidden sm:flex flex-col text-right group cursor-pointer">
-                            <p className="text-sm font-black text-slate-900 group-hover:text-blue-600 transition-colors tracking-tight">{user?.name}</p>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{user?.role} Access</p>
-                        </Link>
-                        <Link to="/profile" className="relative group">
-                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black text-xl shadow-lg group-hover:scale-110 transition-all border-2 border-white ring-1 ring-slate-100 overflow-hidden">
-                                {user?.profilePicture ? (
-                                    <img src={user.profilePicture} alt="Avatar" className="w-full h-full object-cover" />
-                                ) : (
-                                    user?.name?.charAt(0).toUpperCase()
-                                )}
+                    <div className="flex items-center gap-3">
+                        <button className="relative p-2 text-gray-500 hover:bg-gray-100 rounded-xl transition-colors">
+                            <Bell size={20} />
+                            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
+                        </button>
+                        <Link to="/profile" className="flex items-center gap-3 pl-3 border-l border-gray-200">
+                            <div className="text-right hidden sm:block">
+                                <p className="text-sm font-semibold text-gray-900 leading-tight">{user?.name}</p>
+                                <p className="text-xs text-gray-400 capitalize">{user?.role === 'admin' ? 'Admin' : 'Student'}</p>
                             </div>
-                            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"></div>
+                            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm overflow-hidden flex-shrink-0">
+                                {user?.profilePicture
+                                    ? <img src={user.profilePicture} alt="" className="w-full h-full object-cover" />
+                                    : user?.name?.charAt(0).toUpperCase()
+                                }
+                            </div>
                         </Link>
                     </div>
                 </header>
 
-                {/* Page Content */}
-                <div className="flex-1 overflow-auto bg-slate-50/50 custom-scrollbar">
+                {/* Content */}
+                <div className="flex-1 overflow-auto">
                     <Outlet />
                 </div>
             </main>
 
-            {/* Global AI Assistant */}
             {!isAdmin && <AIDoubtAssistant />}
-
-            <style>{`
-                .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-                .custom-scrollbar::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; }
-                .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #CBD5E1; }
-            `}</style>
         </div>
     );
 };

@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import {
     PlayCircle, CheckCircle, FileText, LayoutList, Plus,
     X, UploadCloud, Link as LinkIcon, Code, Lock, ShieldAlert,
-    ArrowLeft, Clock
+    ArrowLeft, Clock, CreditCard
 } from 'lucide-react';
 import clsx from 'clsx';
 
