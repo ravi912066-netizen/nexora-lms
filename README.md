@@ -4,7 +4,7 @@ Nexora is a high-performance Learning Management System with integrated live cla
 
 ## 🌟 Key Features
 - **Live Class Hub**: Full-featured Jitsi Meet integration with screen sharing and chat.
-- **Integrated Practice Arena**: Real-time coding sandbox for live tasks (integrated with Newton School URLs).
+- **Integrated Practice Arena**: Real-time coding sandbox for live tasks .
 - **Course Management**: Admin can create courses, schedule classes, and manage assignments.
 - **Student Analytics**: Granular tracking of assignment views, raw code submissions, and XP.
 - **Leaderboard**: Global student ranking based on performance.
