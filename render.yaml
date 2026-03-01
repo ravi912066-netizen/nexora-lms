@@ -10,6 +10,6 @@ services:
       - key: NODE_VERSION
         value: 18.x
       - key: MONGO_URI
-        fromValue: <your-mongodb-atlas-uri>
+        value: "PROVIDE_YOUR_ATLAS_URI_IN_RENDER_DASHBOARD"
       - key: JWT_SECRET
-        fromValue: nexora_production_secret_2026
+        value: "nexora_production_secret_2026"
