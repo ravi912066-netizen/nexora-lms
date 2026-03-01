@@ -4,7 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import {
     User, Mail, Phone, Lock, Save, CheckCircle,
     MapPin, Code, Globe, Camera, Github, Link as LinkIcon,
-    AlertCircle, MessageSquare, Send, Clock, X, PhoneCall, Video, ShieldQuestion
+    AlertCircle, MessageSquare, Send, Clock, X, PhoneCall, Video, ShieldQuestion,
+    BookOpen, Star, Compass
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
@@ -344,6 +345,48 @@ const Profile = () => {
                         </div>
                         <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-blue-600/10 rounded-full blur-3xl"></div>
                     </div>
+
+                    {/* Mentor Guidance Card - Students Only */}
+                    {!isAdmin && (
+                        <div className="bg-gradient-to-br from-amber-900 via-orange-950 to-slate-900 p-10 rounded-[3rem] text-white space-y-6 shadow-2xl relative overflow-hidden flex flex-col items-center text-center">
+                            <div className="z-10 relative space-y-4 w-full">
+                                <div className="w-16 h-16 bg-amber-500/20 rounded-2xl flex items-center justify-center mx-auto border border-amber-400/30">
+                                    <Compass size={28} className="text-amber-400" />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-black italic tracking-tight text-amber-100">Mentor Guidance</h3>
+                                    <p className="text-amber-100/40 text-xs font-bold leading-relaxed mt-2">
+                                        Need a 1-on-1 roadmap session? Request personalised career & code mentoring from Ravi Yadav.
+                                    </p>
+                                </div>
+
+                                <div className="flex flex-col gap-3 pt-2 w-full">
+                                    <button
+                                        onClick={() => {
+                                            setDoubtQuestion("🧭 Mentor Guidance Request:\nI would like to schedule a 1-on-1 personalised mentoring session. Please guide me on my learning path, code review, or career direction.");
+                                            setShowDoubtModal(true);
+                                        }}
+                                        className="w-full py-4 bg-amber-500 text-white rounded-2xl font-black uppercase tracking-widest hover:bg-amber-400 transition-all flex items-center justify-center gap-2 group shadow-lg shadow-amber-500/20"
+                                    >
+                                        <BookOpen size={16} className="group-hover:rotate-12 transition-transform" />
+                                        Request Mentor Guidance
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setDoubtQuestion("⭐ Code Review Request:\nI would like Ravi bhai to review my code / project and provide detailed feedback and improvement suggestions.");
+                                            setShowDoubtModal(true);
+                                        }}
+                                        className="w-full py-3.5 bg-white/5 text-amber-300 border border-amber-400/20 rounded-2xl font-bold uppercase tracking-widest hover:bg-amber-500/20 transition-all flex items-center justify-center gap-2 text-xs"
+                                    >
+                                        <Star size={14} />
+                                        Request Code Review
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-amber-500/10 rounded-full blur-3xl" />
+                            <div className="absolute -left-10 -top-10 w-32 h-32 bg-orange-500/10 rounded-full blur-2xl" />
+                        </div>
+                    )}
 
                     <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-xl space-y-6">
                         <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 flex items-center gap-3 italic">
