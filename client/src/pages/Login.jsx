@@ -35,7 +35,7 @@ const Login = () => {
                         <LogIn size={32} />
                     </div>
                     <h2 className="text-3xl font-bold text-slate-800">Welcome Back</h2>
-                    <p className="text-slate-500 mt-2">Sign in to your Nexora account</p>
+                    <p className="text-slate-500 mt-2">Sign in to your Nexora Edu account</p>
                 </div>
 
                 {error && (

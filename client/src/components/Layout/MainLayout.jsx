@@ -50,7 +50,7 @@ const MainLayout = () => {
             )}>
                 <div className="h-16 flex items-center px-6 border-b border-slate-100">
                     <BrainCircuit className="text-blue-600 mr-2" size={28} />
-                    <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-indigo-700">Nexora</span>
+                    <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-indigo-700">Nexora Edu</span>
                     <button className="ml-auto lg:hidden" onClick={() => setSidebarOpen(false)}>
                         <X size={20} className="text-slate-500" />
                     </button>

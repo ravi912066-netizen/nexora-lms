@@ -37,7 +37,7 @@ const Register = () => {
                         <UserPlus size={32} />
                     </div>
                     <h2 className="text-3xl font-bold text-slate-800">Create Account</h2>
-                    <p className="text-slate-500 mt-2">Join Nexora and start learning</p>
+                    <p className="text-slate-500 mt-2">Join Nexora Edu and start learning</p>
                 </div>
 
                 {error && (
@@ -109,6 +109,9 @@ const Register = () => {
                         Sign in
                     </Link>
                 </p>
+                <div className="mt-4 p-4 bg-amber-50 rounded-xl border border-amber-100 text-[10px] font-bold text-amber-700 uppercase tracking-widest text-center">
+                    Note: Naya account Ravi Yadav bhai approve karenge tabhi login hoga.
+                </div>
             </div>
         </div>
     );
