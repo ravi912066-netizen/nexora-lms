@@ -9,6 +9,10 @@ Nexora is a high-performance Learning Management System with integrated live cla
 - **Student Analytics**: Granular tracking of assignment views, raw code submissions, and XP.
 - **Leaderboard**: Global student ranking based on performance.
 
+## 🚀 Live Links
+- **Frontend**: [https://nexora-lms.vercel.app](https://nexora-lms.vercel.app)
+- **Backend**: [https://nexora-api.onrender.com](https://nexora-api.onrender.com)
+
 ## 🛠 Tech Stack
 - **Frontend**: React, Vite, Tailwind CSS v4, Lucide Icons, Axios.
 - **Backend**: Node.js, Express, MongoDB, JWT.
@@ -20,7 +24,7 @@ Nexora is a high-performance Learning Management System with integrated live cla
 
 ---
 
-## 🚀 How to Get Your Live URL
+## 🚀 Deployment Instructions
 
 To make this portal work from any computer, follow these 3 steps:
 
