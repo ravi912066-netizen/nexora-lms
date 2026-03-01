@@ -8,9 +8,12 @@ connectDB();
 
 const app = express();
 
+const path = require('path');
+
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Basic route
 app.get('/', (req, res) => {

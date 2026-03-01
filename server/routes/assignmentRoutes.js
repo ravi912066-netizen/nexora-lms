@@ -1,9 +1,22 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
+const path = require('path');
 const { protect, admin } = require('../middleware/authMiddleware');
 const Assignment = require('../models/Assignment');
 const Submission = require('../models/Submission');
 const Performance = require('../models/Performance');
+
+// Multer Config
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/');
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${Date.now()}-${file.originalname}`);
+    }
+});
+const upload = multer({ storage });
 
 // Get assignments for a course (Student/Admin)
 router.get('/course/:courseId', protect, async (req, res) => {
@@ -26,10 +39,10 @@ router.post('/', protect, admin, async (req, res) => {
     }
 });
 
-// Submit assignment (Student)
-router.post('/:id/submit', protect, async (req, res) => {
+// Submit assignment (Student) - Supports Files + Attachments
+router.post('/:id/submit', protect, upload.array('files'), async (req, res) => {
     try {
-        const { url, code } = req.body;
+        const { url, code, attachments: attachmentsRaw } = req.body;
         const assignment = await Assignment.findById(req.params.id);
         if (!assignment) return res.status(404).json({ message: 'Assignment not found' });
 
@@ -43,12 +56,34 @@ router.post('/:id/submit', protect, async (req, res) => {
             return res.status(400).json({ message: 'Already submitted' });
         }
 
+        // Parse attachments if they come as stringified JSON
+        let attachments = [];
+        if (attachmentsRaw) {
+            try {
+                attachments = typeof attachmentsRaw === 'string' ? JSON.parse(attachmentsRaw) : attachmentsRaw;
+            } catch (e) {
+                console.error("Error parsing attachments", e);
+            }
+        }
+
+        // Add uploaded files to attachments
+        if (req.files && req.files.length > 0) {
+            req.files.forEach(file => {
+                attachments.push({
+                    type: 'file',
+                    value: `/uploads/${file.filename}`,
+                    name: file.originalname
+                });
+            });
+        }
+
         const submission = await Submission.create({
             studentId: req.user._id,
             assignmentId: req.params.id,
-            score: assignment.xp, // auto grade for demo
+            score: assignment.xp,
             url: url || '',
             code: code || '',
+            attachments: attachments,
             status: 'completed',
             submittedAt: new Date()
         });

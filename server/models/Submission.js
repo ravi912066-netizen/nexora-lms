@@ -6,6 +6,11 @@ const SubmissionSchema = new mongoose.Schema({
     score: { type: Number, default: 0 },
     url: { type: String, required: false },
     code: { type: String, required: false },
+    attachments: [{
+        type: { type: String, enum: ['link', 'code', 'file'] },
+        value: String,
+        name: String
+    }],
     status: { type: String, enum: ['pending', 'completed'], default: 'pending' },
     submittedAt: { type: Date }
 }, { timestamps: true });
