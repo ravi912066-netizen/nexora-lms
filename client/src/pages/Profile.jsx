@@ -17,6 +17,8 @@ const Profile = () => {
     const [codeforcesHandle, setCodeforcesHandle] = useState(user?.codeforcesHandle || '');
     const [leetcodeHandle, setLeetcodeHandle] = useState(user?.leetcodeHandle || '');
     const [gfgHandle, setGfgHandle] = useState(user?.gfgHandle || '');
+    const [upiId, setUpiId] = useState(user?.upiId || '');
+    const [paymentInstructions, setPaymentInstructions] = useState(user?.paymentInstructions || '');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [loading, setLoading] = useState(false);
@@ -29,6 +31,7 @@ const Profile = () => {
     const [doubtLoading, setDoubtLoading] = useState(false);
 
     const fileInputRef = useRef(null);
+    const isAdmin = user?.role === 'admin';
 
     useEffect(() => {
         fetchMyDoubts();
@@ -56,6 +59,7 @@ const Profile = () => {
             const { data } = await api.put('/auth/profile', {
                 name, email, phone, location,
                 codeforcesHandle, leetcodeHandle, gfgHandle,
+                upiId, paymentInstructions,
                 password: password || undefined
             });
             login(data);
@@ -160,9 +164,12 @@ const Profile = () => {
                     </div>
 
                     <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-                        <div className="bg-blue-50 text-blue-600 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse"></span>
-                            {user?.role} Active
+                        <div className={clsx(
+                            "px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest flex items-center gap-2",
+                            isAdmin ? "bg-amber-100 text-amber-600 border border-amber-200" : "bg-blue-50 text-blue-600"
+                        )}>
+                            <span className={clsx("w-1.5 h-1.5 rounded-full animate-pulse", isAdmin ? "bg-amber-600" : "bg-blue-600")}></span>
+                            {isAdmin ? 'Founder & CEO' : `${user?.role} Active`}
                         </div>
                         {user?.location && (
                             <div className="bg-slate-100 text-slate-600 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest flex items-center gap-2">
@@ -237,6 +244,34 @@ const Profile = () => {
                                 <input className="w-full px-6 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-blue-600 font-bold outline-none ring-0" value={gfgHandle} onChange={(e) => setGfgHandle(e.target.value)} />
                             </div>
                         </div>
+
+                        {isAdmin && (
+                            <div className="pt-8 border-t-2 border-dashed border-slate-100 space-y-8">
+                                <h4 className="text-sm font-black text-amber-600 uppercase tracking-[0.2em] flex items-center gap-2">
+                                    <CreditCard size={16} /> Founder Payment Protocol
+                                </h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Your UPI ID (e.g. name@okaxis)</label>
+                                        <input
+                                            className="w-full px-6 py-4 bg-amber-50/30 border-2 border-amber-100 rounded-2xl focus:border-amber-500 font-black text-amber-900 outline-none"
+                                            placeholder="Apna UPI ID dalein"
+                                            value={upiId}
+                                            onChange={(e) => setUpiId(e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Payment Instructions</label>
+                                        <input
+                                            className="w-full px-6 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-blue-600 font-bold outline-none"
+                                            placeholder="e.g. Send screenshot on WhatsApp"
+                                            value={paymentInstructions}
+                                            onChange={(e) => setPaymentInstructions(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         <button type="submit" disabled={loading} className="w-full py-5 bg-blue-600 text-white font-black rounded-2xl shadow-xl hover:bg-blue-700 uppercase tracking-[0.2em] flex items-center justify-center gap-3">
                             <Save size={20} /> {loading ? 'Syncing...' : 'Finalize Profile'}

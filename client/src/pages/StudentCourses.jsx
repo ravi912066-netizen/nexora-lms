@@ -1,17 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api';
-import { Link } from 'react-router-dom';
-import { BookOpen, CreditCard, CheckCircle, Clock, X, Upload, IndianRupee, ShieldAlert } from 'lucide-react';
+import {
+    BookOpen, Clock, CheckCircle, Lock,
+    ArrowRight, CreditCard, ShieldCheck, AlertCircle,
+    X, Upload, Send, IndianRupee
+} from 'lucide-react';
 import clsx from 'clsx';
 
 const StudentCourses = () => {
     const [courses, setCourses] = useState([]);
     const [enrollments, setEnrollments] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [showEnrollModal, setShowEnrollModal] = useState(null); // course object
+    const [selectedCourse, setSelectedCourse] = useState(null);
     const [transactionId, setTransactionId] = useState('');
     const [file, setFile] = useState(null);
-    const [requesting, setRequesting] = useState(false);
+    const [paymentInfo, setPaymentInfo] = useState({ upiId: '', paymentInstructions: '' });
+    const [requestLoading, setRequestLoading] = useState(false);
+
+    useEffect(() => {
+        fetchData();
+        fetchPaymentInfo();
+    }, []);
 
     const fetchData = async () => {
         try {
@@ -28,96 +37,105 @@ const StudentCourses = () => {
         }
     };
 
-    useEffect(() => {
-        fetchData();
-    }, []);
+    const fetchPaymentInfo = async () => {
+        try {
+            const { data } = await api.get('/enrollments/payment-info');
+            setPaymentInfo(data);
+        } catch (err) {
+            console.error('Err payment info', err);
+        }
+    };
 
-    const handleEnrollRequest = async (e) => {
+    const handleRequestAccess = async (e) => {
         e.preventDefault();
-        if (!file) return alert('Bhai, payment ka screenshot to dalo!');
+        if (!file || !transactionId) return alert('Please provide payment proof.');
 
-        setRequesting(true);
+        setRequestLoading(true);
         const formData = new FormData();
-        formData.append('courseId', showEnrollModal._id);
+        formData.append('courseId', selectedCourse._id);
         formData.append('transactionId', transactionId);
         formData.append('screenshot', file);
 
         try {
             await api.post('/enrollments/request', formData);
-            alert('Request bhej di gayi hai! Ravi Yadav bhai ke approve karne ka wait karein.');
-            setShowEnrollModal(null);
-            setFile(null);
-            setTransactionId('');
+            alert('Request send ho gayi! Ravi bhai check karke approve kar denge. ✅');
+            setSelectedCourse(null);
             fetchData();
         } catch (error) {
-            alert(error.response?.data?.message || 'Request fail ho gaya');
+            alert('Request fail ho gayi: ' + error.response?.data?.message);
         } finally {
-            setRequesting(false);
+            setRequestLoading(false);
         }
     };
 
     const getEnrollmentStatus = (courseId) => {
-        const enrollment = enrollments.find(e => e.course._id === courseId);
-        return enrollment ? enrollment.status : null;
+        return enrollments.find(e => e.course?._id === courseId || e.course === courseId);
     };
 
-    if (loading) return <div className="p-10 text-center"><div className="animate-spin text-blue-500 mx-auto w-8 h-8 rounded-full border-4 border-t-blue-500 border-blue-100"></div></div>;
+    if (loading) return <div className="p-20 text-center font-black uppercase tracking-widest text-slate-400">Loading Missions...</div>;
 
     return (
-        <div className="animate-fade-in p-2 sm:p-6 lg:p-10">
-            <div className="mb-12">
-                <h1 className="text-4xl font-black text-slate-900 tracking-tight">Mission Catalog</h1>
-                <p className="text-slate-500 font-bold text-xs uppercase tracking-widest mt-2 flex items-center gap-2">
-                    <BookOpen size={14} className="text-blue-500" /> Choose Your Training Path
-                </p>
+        <div className="max-w-7xl mx-auto p-4 sm:p-10 animate-fade-in space-y-12">
+            {/* Header */}
+            <div className="relative overflow-hidden bg-slate-900 rounded-[3rem] p-12 text-white shadow-2xl">
+                <div className="relative z-10">
+                    <div className="inline-block px-4 py-1.5 bg-blue-500/20 backdrop-blur-md border border-blue-400/30 rounded-full text-blue-300 text-[10px] font-black uppercase tracking-[0.2em] mb-6">
+                        Mission Directory / Courses
+                    </div>
+                    <h1 className="text-5xl font-black mb-4 tracking-tight leading-none text-white">Unlock Your Potential 🔓</h1>
+                    <p className="text-blue-100/60 font-medium text-lg max-w-xl">
+                        Aapke liye curated premium courses. Enroll karein aur apna coding level next tier par le jayein.
+                    </p>
+                </div>
+                <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-blue-600/10 rounded-full blur-[80px]"></div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+            {/* Course Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {courses.map(course => {
-                    const status = getEnrollmentStatus(course._id);
-                    const isApproved = status === 'approved';
-                    const isPending = status === 'pending';
+                    const enrollment = getEnrollmentStatus(course._id);
+                    const isEnrolled = enrollment?.status === 'approved';
+                    const isPending = enrollment?.status === 'pending';
 
                     return (
-                        <div key={course._id} className="bg-white rounded-[2.5rem] p-1 shadow-xl border border-slate-100 transition-all hover:shadow-2xl hover:-translate-y-2 group overflow-hidden flex flex-col">
-                            <div className="h-56 bg-gradient-to-tr from-slate-900 to-blue-900 rounded-[2rem] p-8 relative overflow-hidden flex flex-col justify-end text-white">
-                                <div className="absolute top-6 right-6 flex gap-2">
-                                    <div className="bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-white/10">
-                                        ₹{course.price}
-                                    </div>
-                                    {isApproved && (
-                                        <div className="bg-emerald-500/20 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-500/20 text-emerald-400 flex items-center gap-1">
-                                            <CheckCircle size={10} /> Enrolled
-                                        </div>
-                                    )}
+                        <div key={course._id} className="group bg-white rounded-[2.5rem] border border-slate-100 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden flex flex-col">
+                            <div className="h-48 bg-slate-50 relative overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-indigo-600/10 group-hover:scale-110 transition-transform duration-700"></div>
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <BookOpen size={48} className="text-blue-600/20" />
                                 </div>
-
-                                <div className="absolute -right-20 -top-20 w-64 h-64 bg-blue-600/20 rounded-full blur-[100px] mix-blend-screen group-hover:scale-110 transition-transform duration-700"></div>
-
-                                <h3 className="text-2xl font-black z-10 leading-tight mb-2 tracking-tight group-hover:translate-x-1 transition-transform">{course.title}</h3>
+                                <div className="absolute top-6 right-6">
+                                    <div className="bg-white/90 backdrop-blur px-4 py-2 rounded-2xl shadow-sm text-slate-900 font-black flex items-center gap-1.5 text-sm">
+                                        <IndianRupee size={14} /> {course.price || 0}
+                                    </div>
+                                </div>
                             </div>
 
-                            <div className="p-8 flex-1 flex flex-col">
-                                <p className="text-slate-500 text-sm font-medium mb-8 line-clamp-2 leading-relaxed">{course.description}</p>
+                            <div className="p-8 flex-1 flex flex-col space-y-4">
+                                <div>
+                                    <h3 className="text-xl font-black text-slate-900 tracking-tight group-hover:text-blue-600 transition-colors">{course.title}</h3>
+                                    <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mt-1 italic">Mentor: Ravi Yadav</p>
+                                </div>
 
-                                <div className="mt-auto pt-6 border-t border-slate-50 flex items-center justify-between">
-                                    {isApproved ? (
-                                        <Link
-                                            to={`/courses/${course._id}`}
-                                            className="w-full bg-blue-600 text-white px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-[11px] text-center hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 active:scale-95"
-                                        >
-                                            Enter Mission Ground
-                                        </Link>
+                                <p className="text-slate-500 text-sm font-medium line-clamp-2 leading-relaxed">
+                                    {course.description}
+                                </p>
+
+                                <div className="pt-4 flex items-center justify-between gap-4">
+                                    {isEnrolled ? (
+                                        <a href={`/courses/${course._id}`} className="flex-1 py-4 bg-emerald-500 text-white rounded-2xl font-black text-center text-xs uppercase tracking-widest shadow-lg shadow-emerald-100 flex items-center justify-center gap-2 hover:bg-emerald-600 transition-all">
+                                            <CheckCircle size={16} /> Dashboard Access
+                                        </a>
                                     ) : isPending ? (
-                                        <div className="w-full bg-amber-50 text-amber-600 px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-[11px] text-center border border-amber-100 flex items-center justify-center gap-2">
-                                            <Clock size={16} /> Identity Pending
+                                        <div className="flex-1 py-4 bg-amber-50 text-amber-600 rounded-2xl font-black text-center text-xs uppercase tracking-widest border border-amber-100 flex items-center justify-center gap-2">
+                                            <Clock size={16} /> Approval Pending
                                         </div>
                                     ) : (
                                         <button
-                                            onClick={() => setShowEnrollModal(course)}
-                                            className="w-full bg-slate-900 text-white px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-[11px] text-center hover:bg-black transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2"
+                                            onClick={() => setSelectedCourse(course)}
+                                            className="flex-1 py-4 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-blue-100 flex items-center justify-center gap-2 hover:bg-blue-700 transition-all transform active:scale-95 translate-y-0 hover:-translate-y-1"
                                         >
-                                            <CreditCard size={16} /> Request Access
+                                            <Lock size={16} /> Request Access
                                         </button>
                                     )}
                                 </div>
@@ -125,101 +143,93 @@ const StudentCourses = () => {
                         </div>
                     );
                 })}
-
-                {courses.length === 0 && (
-                    <div className="col-span-full py-24 text-center bg-white rounded-[3rem] border border-slate-100 shadow-xl">
-                        <div className="inline-flex items-center justify-center w-24 h-24 rounded-[2rem] bg-slate-50 text-slate-300 mb-6">
-                            <BookOpen size={48} />
-                        </div>
-                        <h3 className="text-2xl font-black text-slate-800 tracking-tight">Catalog Empty</h3>
-                        <p className="text-slate-400 font-bold text-sm uppercase tracking-widest mt-2">New missions are being architected by the admin.</p>
-                    </div>
-                )}
             </div>
 
-            {/* Enrollment Modal */}
-            {showEnrollModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
-                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={() => setShowEnrollModal(null)}></div>
-                    <div className="bg-white w-full max-w-xl rounded-[3.5rem] shadow-[0_30px_100px_-15px_rgba(0,0,0,0.5)] z-10 overflow-hidden animate-in zoom-in-95 duration-300">
-                        <div className="p-8 sm:p-12 space-y-8">
-                            <div className="flex items-center justify-between">
-                                <div className="space-y-1">
-                                    <h2 className="text-2xl font-black text-slate-900 tracking-tight">Request Course Access</h2>
-                                    <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest">{showEnrollModal.title}</p>
+            {/* Payment Modal */}
+            {selectedCourse && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+                    <div className="bg-white w-full max-w-2xl rounded-[3rem] p-10 shadow-3xl animate-slide-up relative overflow-hidden border border-white/20">
+                        <div className="flex justify-between items-center mb-8 relative z-10">
+                            <div>
+                                <h2 className="text-3xl font-black text-slate-900 tracking-tight">Access Authorization</h2>
+                                <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">Target: {selectedCourse.title}</p>
+                            </div>
+                            <button onClick={() => setSelectedCourse(null)} className="p-3 hover:bg-slate-100 rounded-2xl transition-all"><X size={24} /></button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 relative z-10">
+                            {/* UPI Info Sidebar */}
+                            <div className="space-y-6">
+                                <div className="bg-blue-600 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden">
+                                    <div className="z-10 relative space-y-4">
+                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60 flex items-center gap-2 text-white">
+                                            <CreditCard size={12} /> Payment Gateway
+                                        </p>
+                                        <div className="space-y-1">
+                                            <p className="text-xs font-bold opacity-70">Pay via UPI to Ravi Yadav:</p>
+                                            <p className="text-2xl font-black tracking-tight">{paymentInfo.upiId || 'raviyadav@upi'}</p>
+                                        </div>
+                                        <div className="p-4 bg-white/10 rounded-2xl border border-white/10 backdrop-blur-sm">
+                                            <p className="text-[10px] font-black uppercase mb-1">Total Fee</p>
+                                            <p className="text-xl font-black flex items-center gap-1"><IndianRupee size={18} /> {selectedCourse.price}</p>
+                                        </div>
+                                    </div>
+                                    <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
                                 </div>
-                                <button onClick={() => setShowEnrollModal(null)} className="p-3 text-slate-400 hover:text-slate-900 bg-slate-50 rounded-2xl transition-all">
-                                    <X size={20} />
-                                </button>
+                                <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2"><div className="w-1 h-1 bg-amber-500 rounded-full"></div> Instructions</p>
+                                    <p className="text-xs font-bold text-slate-600 leading-relaxed italic">
+                                        {paymentInfo.paymentInstructions || 'Scan the QR or use the UPI ID above. Please upload the screenshot after success.'}
+                                    </p>
+                                </div>
                             </div>
 
-                            <div className="bg-blue-50 p-6 rounded-[2rem] border border-blue-100 flex items-center justify-between">
-                                <div>
-                                    <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1">Total Fee</p>
-                                    <p className="text-3xl font-black text-blue-700 tracking-tight">₹{showEnrollModal.price}</p>
-                                </div>
-                                <div className="bg-white p-4 rounded-2xl rotate-3 shadow-lg border border-blue-50">
-                                    <IndianRupee size={24} className="text-blue-500" />
-                                </div>
-                            </div>
-
-                            <form onSubmit={handleEnrollRequest} className="space-y-6">
+                            {/* Form */}
+                            <form onSubmit={handleRequestAccess} className="space-y-6">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">Transaction ID / TXN Hash</label>
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Transaction ID / Reference</label>
                                     <input
                                         required
-                                        className="w-full px-6 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-blue-600 transition-all font-bold outline-none"
-                                        placeholder="Enter the ID from your UPI/Bank app"
+                                        className="w-full px-6 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-blue-600 font-bold outline-none"
+                                        placeholder="Enter T-ID"
                                         value={transactionId}
                                         onChange={(e) => setTransactionId(e.target.value)}
                                     />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">Payment Verification Image</label>
-                                    <div
-                                        className={clsx(
-                                            "w-full h-40 border-2 border-dashed rounded-[2rem] flex flex-col items-center justify-center transition-all cursor-pointer overflow-hidden",
-                                            file ? "border-emerald-500 bg-emerald-50" : "border-slate-200 bg-slate-50 hover:border-blue-400 hover:bg-blue-50"
-                                        )}
-                                        onClick={() => document.getElementById('enroll-upload').click()}
-                                    >
-                                        {file ? (
-                                            <div className="flex flex-col items-center gap-2">
-                                                <CheckCircle size={32} className="text-emerald-500" />
-                                                <p className="text-xs font-black text-emerald-600 uppercase tracking-widest">{file.name}</p>
-                                            </div>
-                                        ) : (
-                                            <div className="flex flex-col items-center gap-2">
-                                                <Upload size={32} className="text-slate-300" />
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Upload Screenshot</p>
-                                            </div>
-                                        )}
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 text-white">Payment Screenshot</label>
+                                    <div className="relative group">
                                         <input
-                                            id="enroll-upload"
                                             type="file"
-                                            hidden
+                                            required
                                             onChange={(e) => setFile(e.target.files[0])}
-                                            accept="image/*"
+                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                         />
+                                        <div className="w-full px-6 py-8 bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl group-hover:border-blue-400 transition-all flex flex-col items-center gap-3">
+                                            {file ? (
+                                                <div className="flex items-center gap-2 text-emerald-600 font-bold">
+                                                    <CheckCircle size={20} /> {file.name.slice(0, 10)}...
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <Upload className="text-slate-400" size={24} />
+                                                    <p className="text-[10px] font-black text-slate-400 uppercase">Drop Screenshot</p>
+                                                </>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
 
                                 <button
                                     type="submit"
-                                    disabled={requesting}
-                                    className="w-full py-5 bg-slate-900 text-white font-black rounded-[2rem] shadow-2xl hover:bg-black transition-all transform active:scale-95 uppercase tracking-[0.2em] text-xs disabled:opacity-50"
+                                    disabled={requestLoading}
+                                    className="w-full py-5 bg-blue-600 text-white font-black rounded-2xl shadow-xl hover:bg-blue-700 transition-all flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
                                 >
-                                    {requesting ? 'Processing Signal...' : 'Transmit Access Request'}
+                                    {requestLoading ? <Clock className="animate-spin" size={20} /> : <Send size={20} />}
+                                    {requestLoading ? 'Transmitting...' : 'Confirm Request'}
                                 </button>
                             </form>
-
-                            <div className="bg-red-50 p-6 rounded-[2rem] border border-red-100 flex items-start gap-4">
-                                <ShieldAlert size={20} className="text-red-600 shrink-0 mt-1" />
-                                <p className="text-[10px] font-bold text-red-700 uppercase leading-relaxed tracking-wider">
-                                    Warning: Galat Proof dalne par identity blacklist ho sakti hai. Ravi Yadav bhai ke account mein paise transfer karke hi request karein.
-                                </p>
-                            </div>
                         </div>
                     </div>
                 </div>
