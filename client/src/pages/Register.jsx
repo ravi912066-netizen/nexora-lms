@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api';
 import { useAuth } from '../context/AuthContext';
-import { UserPlus } from 'lucide-react';
+import { UserPlus, Phone } from 'lucide-react';
 
 const Register = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
     const [role, setRole] = useState('student');
     const [error, setError] = useState('');
@@ -16,9 +17,15 @@ const Register = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const { data } = await api.post('/auth/register', { name, email, password, role });
-            login(data);
-            navigate('/');
+            const { data } = await api.post('/auth/register', { name, email, phone, password, role });
+            // For now, auto-login after register if approved, but students need approval
+            if (data.isApproved) {
+                login(data);
+                navigate('/');
+            } else {
+                alert('Aapka account register ho gaya hai! Ravi Yadav bhai ke approve karne ka wait karein.');
+                navigate('/login');
+            }
         } catch (err) {
             setError(err.response?.data?.message || 'Registration failed');
         }
@@ -31,7 +38,7 @@ const Register = () => {
             <div className="absolute top-0 -left-4 w-72 h-72 bg-indigo-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
             <div className="absolute -bottom-8 right-20 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
 
-            <div className="relative w-full max-w-md p-8 m-4 rounded-2xl glass shadow-2xl z-10">
+            <div className="relative w-full max-w-md p-8 m-4 rounded-3xl glass shadow-2xl z-10">
                 <div className="text-center mb-8">
                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 text-blue-600 mb-4 shadow-inner">
                         <UserPlus size={32} />
@@ -69,6 +76,23 @@ const Register = () => {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                         />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Mobile Number (OTP ke liye)</label>
+                        <div className="relative">
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                                <Phone size={16} />
+                            </span>
+                            <input
+                                type="tel"
+                                required
+                                className="w-full pl-12 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/50 backdrop-blur-sm"
+                                placeholder="+91 00000 00000"
+                                value={phone}
+                                onChange={(e) => setPhone(e.target.value)}
+                            />
+                        </div>
                     </div>
 
                     <div>

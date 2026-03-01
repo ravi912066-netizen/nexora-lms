@@ -11,6 +11,7 @@ import StudentCourses from './pages/StudentCourses';
 import CourseView from './pages/CourseView';
 import Leaderboard from './pages/Leaderboard';
 import LiveClass from './pages/LiveClass';
+import Profile from './pages/Profile'; // Added
 
 // Admin Pages
 import AdminCourses from './pages/AdminCourses';
@@ -42,6 +43,8 @@ function AppRoutes() {
         <Route path="/" element={
           user?.role === 'admin' ? <AdminDashboard /> : <StudentDashboard />
         } />
+
+        <Route path="/profile" element={<Profile />} /> {/* Added */}
 
         {/* Student Routes */}
         <Route path="/courses" element={<StudentCourses />} />
