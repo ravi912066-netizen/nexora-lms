@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
+import ActivityTracker from '../components/profile/ActivityTracker';
 
 const Profile = () => {
     const { user, login } = useAuth();
@@ -339,8 +340,11 @@ const Profile = () => {
                 </div>
             </div>
 
+            {/* Performance Tracker - LeetCode Style */}
+            <ActivityTracker />
+
             {/* Mission Intel / Doubt Dashboard - THE BIG REFACTOR */}
-            <div className="bg-white/40 backdrop-blur-md rounded-[4rem] p-12 border border-white/40 shadow-xl space-y-10">
+            <div className="bg-white/40 backdrop-blur-md rounded-[4rem] p-12 border border-white/40 shadow-xl space-y-10 mt-10">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
                         <h2 className="text-3xl font-black text-slate-900 tracking-tighter">Mission Intel Hub 🛡️</h2>
