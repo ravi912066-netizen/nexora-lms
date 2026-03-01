@@ -1,0 +1,37 @@
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const connectDB = require('./config/db');
+
+// Connect Database
+connectDB();
+
+const app = express();
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Basic route
+app.get('/', (req, res) => {
+    res.send('Nexora API is running...');
+});
+
+// Import Routes
+const authRoutes = require('./routes/authRoutes');
+const courseRoutes = require('./routes/courseRoutes');
+const assignmentRoutes = require('./routes/assignmentRoutes');
+const performanceRoutes = require('./routes/performanceRoutes');
+const liveRoutes = require('./routes/liveRoutes');
+
+app.use('/api/auth', authRoutes);
+app.use('/api/courses', courseRoutes);
+app.use('/api/assignments', assignmentRoutes);
+app.use('/api/performance', performanceRoutes);
+app.use('/api/live', liveRoutes);
+
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
