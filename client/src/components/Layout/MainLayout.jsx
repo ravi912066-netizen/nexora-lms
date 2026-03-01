@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { LayoutDashboard, BookOpen, FileText, BarChart2, Calendar, LogOut, Menu, X, BrainCircuit, Users, User, CreditCard } from 'lucide-react';
+import { LayoutDashboard, BookOpen, FileText, BarChart2, Calendar, LogOut, Menu, X, BrainCircuit, Users, User, CreditCard, MessageSquare } from 'lucide-react';
 import AIDoubtAssistant from '../AIDoubtAssistant'; // Added
 import clsx from 'clsx';
 
@@ -23,7 +23,8 @@ const MainLayout = () => {
     const adminLinks = [
         { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
         { name: 'Manage Courses', icon: BookOpen, path: '/admin/courses' },
-        { name: 'Enrollment Requests', icon: CreditCard, path: '/admin/enrollments' }, // Added
+        { name: 'Enrollment Requests', icon: CreditCard, path: '/admin/enrollments' },
+        { name: 'Student Doubts', icon: MessageSquare, path: '/admin/doubts' }, // Added
         { name: 'Assignments', icon: FileText, path: '/admin/assignments' },
         { name: 'Students', icon: Users, path: '/admin/students' },
         { name: 'Profile', icon: User, path: '/profile' },

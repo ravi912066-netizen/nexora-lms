@@ -11,25 +11,19 @@ import StudentCourses from './pages/StudentCourses';
 import CourseView from './pages/CourseView';
 import Leaderboard from './pages/Leaderboard';
 import LiveClass from './pages/LiveClass';
-import Profile from './pages/Profile'; // Added
+import Profile from './pages/Profile';
 
 // Admin Pages
 import AdminCourses from './pages/AdminCourses';
 import AdminAssignments from './pages/AdminAssignments';
 import AdminStudentProfile from './pages/AdminStudentProfile';
-import AdminEnrollments from './pages/AdminEnrollments'; // Added
+import AdminEnrollments from './pages/AdminEnrollments';
+import AdminDoubts from './pages/AdminDoubts'; // Added
 
 const ProtectedRoute = ({ children, requiredRole }) => {
   const { user } = useAuth();
-
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (requiredRole && user.role !== requiredRole) {
-    return <Navigate to="/" replace />; // or to unauthorized page
-  }
-
+  if (!user) return <Navigate to="/login" replace />;
+  if (requiredRole && user.role !== requiredRole) return <Navigate to="/" replace />;
   return children;
 };
 
@@ -41,11 +35,8 @@ function AppRoutes() {
       <Route path="/register" element={user ? <Navigate to="/" replace /> : <Register />} />
 
       <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-        <Route path="/" element={
-          user?.role === 'admin' ? <AdminDashboard /> : <StudentDashboard />
-        } />
-
-        <Route path="/profile" element={<Profile />} /> {/* Added */}
+        <Route path="/" element={user?.role === 'admin' ? <AdminDashboard /> : <StudentDashboard />} />
+        <Route path="/profile" element={<Profile />} />
 
         {/* Student Routes */}
         <Route path="/courses" element={<StudentCourses />} />
@@ -58,6 +49,7 @@ function AppRoutes() {
         <Route path="/admin/enrollments" element={<ProtectedRoute requiredRole="admin"><AdminEnrollments /></ProtectedRoute>} />
         <Route path="/admin/assignments" element={<ProtectedRoute requiredRole="admin"><AdminAssignments /></ProtectedRoute>} />
         <Route path="/admin/students" element={<ProtectedRoute requiredRole="admin"><AdminStudentProfile /></ProtectedRoute>} />
+        <Route path="/admin/doubts" element={<ProtectedRoute requiredRole="admin"><AdminDoubts /></ProtectedRoute>} /> {/* Added */}
       </Route>
     </Routes>
   );
