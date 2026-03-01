@@ -17,6 +17,7 @@ import Profile from './pages/Profile'; // Added
 import AdminCourses from './pages/AdminCourses';
 import AdminAssignments from './pages/AdminAssignments';
 import AdminStudentProfile from './pages/AdminStudentProfile';
+import AdminEnrollments from './pages/AdminEnrollments'; // Added
 
 const ProtectedRoute = ({ children, requiredRole }) => {
   const { user } = useAuth();
@@ -54,6 +55,7 @@ function AppRoutes() {
 
         {/* Admin Routes */}
         <Route path="/admin/courses" element={<ProtectedRoute requiredRole="admin"><AdminCourses /></ProtectedRoute>} />
+        <Route path="/admin/enrollments" element={<ProtectedRoute requiredRole="admin"><AdminEnrollments /></ProtectedRoute>} />
         <Route path="/admin/assignments" element={<ProtectedRoute requiredRole="admin"><AdminAssignments /></ProtectedRoute>} />
         <Route path="/admin/students" element={<ProtectedRoute requiredRole="admin"><AdminStudentProfile /></ProtectedRoute>} />
       </Route>

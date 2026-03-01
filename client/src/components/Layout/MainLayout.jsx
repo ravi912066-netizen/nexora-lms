@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Outlet, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { LayoutDashboard, BookOpen, FileText, BarChart2, Calendar, LogOut, Menu, X, BrainCircuit, Users, User } from 'lucide-react';
+import { LayoutDashboard, BookOpen, FileText, BarChart2, Calendar, LogOut, Menu, X, BrainCircuit, Users, User, CreditCard } from 'lucide-react';
+import AIDoubtAssistant from '../AIDoubtAssistant'; // Added
 import clsx from 'clsx';
 
 const MainLayout = () => {
@@ -16,16 +17,16 @@ const MainLayout = () => {
         { name: 'My Courses', icon: BookOpen, path: '/courses' },
         { name: 'Assignments', icon: FileText, path: '/assignments' },
         { name: 'Leaderboard', icon: BarChart2, path: '/leaderboard' },
-        { name: 'Calendar', icon: Calendar, path: '/calendar' },
-        { name: 'Profile', icon: User, path: '/profile' }, // Added
+        { name: 'Profile', icon: User, path: '/profile' },
     ];
 
     const adminLinks = [
         { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
         { name: 'Manage Courses', icon: BookOpen, path: '/admin/courses' },
+        { name: 'Enrollment Requests', icon: CreditCard, path: '/admin/enrollments' }, // Added
         { name: 'Assignments', icon: FileText, path: '/admin/assignments' },
         { name: 'Students', icon: Users, path: '/admin/students' },
-        { name: 'Profile', icon: User, path: '/profile' }, // Added
+        { name: 'Profile', icon: User, path: '/profile' },
     ];
 
     const links = isAdmin ? adminLinks : studentLinks;
@@ -111,8 +112,12 @@ const MainLayout = () => {
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{user?.role} Access</p>
                         </Link>
                         <Link to="/profile" className="relative group">
-                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black text-xl shadow-lg group-hover:scale-110 transition-all border-2 border-white ring-1 ring-slate-100">
-                                {user?.name?.charAt(0).toUpperCase()}
+                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black text-xl shadow-lg group-hover:scale-110 transition-all border-2 border-white ring-1 ring-slate-100 overflow-hidden">
+                                {user?.profilePicture ? (
+                                    <img src={user.profilePicture} alt="Avatar" className="w-full h-full object-cover" />
+                                ) : (
+                                    user?.name?.charAt(0).toUpperCase()
+                                )}
                             </div>
                             <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"></div>
                         </Link>
@@ -124,6 +129,9 @@ const MainLayout = () => {
                     <Outlet />
                 </div>
             </main>
+
+            {/* Global AI Assistant */}
+            {!isAdmin && <AIDoubtAssistant />}
 
             <style>{`
                 .custom-scrollbar::-webkit-scrollbar { width: 6px; }
