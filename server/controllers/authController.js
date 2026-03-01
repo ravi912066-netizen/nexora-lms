@@ -49,8 +49,10 @@ const loginUser = async (req, res) => {
     try {
         const user = await User.findOne({ email });
         if (user && (await user.matchPassword(password))) {
+            // BYPASS: Temporarily auto-approve if not already approved as per user request
             if (!user.isApproved) {
-                return res.status(403).json({ message: 'Aapka account abhi approve nahi hua hai. Ravi Yadav bhai ko bolo approve karne ke liye!' });
+                user.isApproved = true;
+                await user.save();
             }
 
             const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
@@ -86,6 +88,47 @@ const verifyOtp = async (req, res) => {
         user.otp = undefined;
         user.otpExpires = undefined;
         await user.save();
+
+        // PHASE 19: REAL ACTIVITY TRACKING
+        const Performance = require('../models/Performance');
+        let perf = await Performance.findOne({ studentId: user._id });
+        if (!perf) {
+            perf = await Performance.create({ studentId: user._id });
+        }
+
+        const today = new Date().toISOString().split('T')[0];
+        const lastActive = perf.lastActivityDate ? new Date(perf.lastActivityDate).toISOString().split('T')[0] : null;
+
+        if (lastActive !== today) {
+            // Update Activity Logs
+            if (!perf.activityLogs.includes(today)) {
+                perf.activityLogs.push(today);
+            }
+
+            // Streak Logic
+            if (lastActive) {
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+                if (lastActive === yesterdayStr) {
+                    perf.currentStreak += 1;
+                } else {
+                    perf.currentStreak = 1;
+                }
+            } else {
+                perf.currentStreak = 1;
+            }
+
+            if (perf.currentStreak > perf.longestStreak) {
+                perf.longestStreak = perf.currentStreak;
+            }
+
+            perf.lastActivityDate = new Date();
+            // Reward 5 XP for daily login
+            perf.totalXP += 5;
+            await perf.save();
+        }
 
         res.json({
             _id: user._id,

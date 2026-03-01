@@ -94,4 +94,23 @@ router.get('/admin/student/:id', protect, admin, async (req, res) => {
     }
 });
 
+// Mark lecture as completed (Student)
+router.post('/lecture/:id', protect, async (req, res) => {
+    try {
+        let perf = await Performance.findOne({ studentId: req.user._id });
+        if (!perf) {
+            perf = await Performance.create({ studentId: req.user._id });
+        }
+
+        if (!perf.lecturesCompleted.includes(req.params.id)) {
+            perf.lecturesCompleted.push(req.params.id);
+            perf.totalXP += 10; // Award 10 XP for each lecture
+            await perf.save();
+        }
+        res.json({ message: 'Lecture marked as completed', totalXP: perf.totalXP });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 module.exports = router;

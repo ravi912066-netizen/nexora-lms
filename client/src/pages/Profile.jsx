@@ -127,10 +127,22 @@ const Profile = () => {
         }
     };
 
+    const [perfStats, setPerfStats] = useState(null);
+
+    useEffect(() => {
+        const fetchPerf = async () => {
+            try {
+                const { data } = await api.get('/performance/me');
+                setPerfStats(data);
+            } catch (err) { }
+        };
+        fetchPerf();
+    }, []);
+
     const stats = [
-        { label: 'Courses', value: '12', color: 'blue' },
-        { label: 'XP Points', value: '450', color: 'indigo' },
-        { label: 'Rank', value: '#12', color: 'emerald' },
+        { label: 'Courses', value: user?.enrolledCourses?.length || '0', color: 'blue' },
+        { label: 'XP Points', value: perfStats?.totalXP || '0', color: 'indigo' },
+        { label: 'Streak', value: perfStats?.currentStreak || '0', color: 'emerald' },
     ];
 
     const HandleBadge = ({ platform, handle, verified }) => (
@@ -317,6 +329,17 @@ const Profile = () => {
                             >
                                 <Send size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                                 Request Support
+                            </button>
+
+                            <button
+                                onClick={() => {
+                                    setDoubtQuestion("I would like to request a 1-on-1 Video Call session with Ravi Yadav bhai. 🎥");
+                                    setShowDoubtModal(true);
+                                }}
+                                className="w-full py-4 bg-blue-600/20 text-blue-400 border border-blue-400/30 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center gap-2 mt-4"
+                            >
+                                <Video size={16} />
+                                Request Call
                             </button>
                         </div>
                         <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-blue-600/10 rounded-full blur-3xl"></div>

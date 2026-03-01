@@ -24,6 +24,7 @@ const CourseView = () => {
     const [submissionAttachments, setSubmissionAttachments] = useState({});
     const [fileUploads, setFileUploads] = useState({});
     const [passedTests, setPassedTests] = useState({});
+    const [perfData, setPerfData] = useState(null);
 
     const [activeLiveRoom, setActiveLiveRoom] = useState(null);
     const [scheduledClass, setScheduledClass] = useState(null);
@@ -71,6 +72,12 @@ const CourseView = () => {
                     } catch (err) {
                         setScheduledClass(null);
                     }
+                }
+
+                // Fetch student performance for lecture completion status
+                if (user?.role !== 'admin') {
+                    const { data: perf } = await api.get('/performance/me');
+                    setPerfData(perf);
                 }
             } catch (error) {
                 console.error('Error fetching course details', error);
@@ -121,6 +128,18 @@ const CourseView = () => {
             alert(error.response?.data?.message || 'Error submitting');
         } finally {
             setSubmitLoading(false);
+        }
+    };
+
+    const markLectureCompleted = async (lectureId) => {
+        try {
+            const { data } = await api.post(`/performance/lecture/${lectureId}`);
+            alert(`Shabash! 10 XP mil gaye! 🔥 Total XP: ${data.totalXP}`);
+            // Refresh performance data
+            const { data: updatedPerf } = await api.get('/performance/me');
+            setPerfData(updatedPerf);
+        } catch (error) {
+            console.error('Error marking lecture as completed', error);
         }
     };
 
@@ -239,7 +258,28 @@ const CourseView = () => {
                                         </div>
                                     </div>
                                     <h3 className="text-xl font-black text-slate-800 mb-4">{lecture.title}</h3>
-                                    <a href={lecture.videoUrl} target="_blank" rel="noreferrer" className="mt-auto py-4 w-full bg-white text-slate-900 font-bold rounded-2xl border-2 border-slate-200 hover:bg-slate-900 hover:text-white transition-all text-center">Watch</a>
+                                    <div className="mt-auto space-y-3">
+                                        <a href={lecture.videoUrl} target="_blank" rel="noreferrer" className="block py-4 w-full bg-slate-900 text-white font-bold rounded-2xl border-2 border-slate-900 hover:bg-blue-600 transition-all text-center">Watch Mission</a>
+
+                                        {user?.role !== 'admin' && (
+                                            <button
+                                                onClick={() => markLectureCompleted(lecture._id)}
+                                                disabled={perfData?.lecturesCompleted?.includes(lecture._id)}
+                                                className={clsx(
+                                                    "w-full py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 border-2 transition-all",
+                                                    perfData?.lecturesCompleted?.includes(lecture._id)
+                                                        ? "bg-emerald-50 text-emerald-600 border-emerald-100 italic"
+                                                        : "bg-white text-slate-400 border-slate-100 hover:border-emerald-500 hover:text-emerald-500"
+                                                )}
+                                            >
+                                                {perfData?.lecturesCompleted?.includes(lecture._id) ? (
+                                                    <><CheckCircle size={14} /> Mission Cleared</>
+                                                ) : (
+                                                    'Mark as Cleared'
+                                                )}
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                             ))}
                         </div>

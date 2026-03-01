@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
+import ActivityTracker from '../components/profile/ActivityTracker';
 
 const AdminStudentProfile = () => {
     const [students, setStudents] = useState([]);
@@ -186,6 +187,11 @@ const AdminStudentProfile = () => {
                                     </div>
                                 </div>
                             ))}
+                        </div>
+
+                        {/* Real Activity Tracker for Admin Context */}
+                        <div className="bg-white p-2 rounded-[3.5rem] shadow-xl border border-slate-100 overflow-hidden">
+                            <ActivityTracker studentId={selectedStudent} />
                         </div>
 
                         {/* Mission Logs */}
