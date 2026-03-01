@@ -19,6 +19,7 @@ import AdminAssignments from './pages/AdminAssignments';
 import AdminStudentProfile from './pages/AdminStudentProfile';
 import AdminEnrollments from './pages/AdminEnrollments';
 import AdminDoubts from './pages/AdminDoubts'; // Added
+import OneOnOneCall from './pages/OneOnOneCall'; // Added 1-on-1 Call
 
 const ProtectedRoute = ({ children, requiredRole }) => {
   const { user } = useAuth();
@@ -42,6 +43,7 @@ function AppRoutes() {
         <Route path="/courses" element={<StudentCourses />} />
         <Route path="/courses/:id" element={<CourseView />} />
         <Route path="/live/:courseId" element={<LiveClass />} />
+        <Route path="/call/:roomId/:studentId?" element={<OneOnOneCall />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
 
         {/* Admin Routes */}

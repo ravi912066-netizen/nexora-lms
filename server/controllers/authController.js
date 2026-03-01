@@ -190,4 +190,33 @@ const approveUser = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser, getMe, approveUser, verifyOtp, updateProfile };
+const initiateCall = async (req, res) => {
+    try {
+        const student = await User.findById(req.params.id);
+        if (!student) return res.status(404).json({ message: 'Student not found' });
+
+        const roomId = `1on1-${req.user._id}-${student._id}-${Date.now()}`;
+        student.activeCallRoom = roomId;
+        await student.save();
+
+        res.json({ message: 'Call initiated', roomId });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const endCall = async (req, res) => {
+    try {
+        const student = await User.findById(req.params.id);
+        if (!student) return res.status(404).json({ message: 'Student not found' });
+
+        student.activeCallRoom = undefined;
+        await student.save();
+
+        res.json({ message: 'Call ended' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+module.exports = { registerUser, loginUser, getMe, approveUser, verifyOtp, updateProfile, initiateCall, endCall };

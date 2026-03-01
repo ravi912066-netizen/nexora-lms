@@ -19,7 +19,8 @@ const UserSchema = new mongoose.Schema({
     isVerifiedLC: { type: Boolean, default: false },
     isVerifiedGFG: { type: Boolean, default: false },
     upiId: { type: String }, // For Admin to receive payments
-    paymentInstructions: { type: String } // For Admin to guide students
+    paymentInstructions: { type: String }, // For Admin to guide students
+    activeCallRoom: { type: String } // For 1-on-1 Admin-Student Video Comms
 }, { timestamps: true });
 
 UserSchema.pre('save', async function () {

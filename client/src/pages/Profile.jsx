@@ -4,12 +4,15 @@ import { useAuth } from '../context/AuthContext';
 import {
     User, Mail, Phone, Lock, Save, CheckCircle,
     MapPin, Code, Globe, Camera, Github, Link as LinkIcon,
-    AlertCircle, MessageSquare, Send, Clock, X
+    AlertCircle, MessageSquare, Send, Clock, X, PhoneCall, Video
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
 
 const Profile = () => {
     const { user, login } = useAuth();
+    const navigate = useNavigate();
+    const [incomingCall, setIncomingCall] = useState(null);
     const [name, setName] = useState(user?.name || '');
     const [email, setEmail] = useState(user?.email || '');
     const [phone, setPhone] = useState(user?.phone || '');
@@ -35,7 +38,23 @@ const Profile = () => {
 
     useEffect(() => {
         fetchMyDoubts();
-    }, []);
+
+        if (user?.role === 'admin') return;
+
+        const checkCall = async () => {
+            try {
+                const { data } = await api.get('/auth/me');
+                if (data.activeCallRoom) {
+                    setIncomingCall(data.activeCallRoom);
+                } else {
+                    setIncomingCall(null);
+                }
+            } catch (err) { }
+        };
+
+        const interval = setInterval(checkCall, 5000);
+        return () => clearInterval(interval);
+    }, [user]);
 
     const fetchMyDoubts = async () => {
         try {
@@ -438,6 +457,30 @@ const Profile = () => {
                         </form>
 
                         <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-blue-50 rounded-full blur-3xl opacity-50"></div>
+                    </div>
+                </div>
+            )}
+
+            {/* Incoming Call Modal */}
+            {incomingCall && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xl animate-fade-in">
+                    <div className="bg-slate-900 w-full max-w-sm rounded-[3rem] p-10 shadow-2xl border border-slate-700 relative text-center items-center flex flex-col space-y-6 animate-pulse">
+                        <div className="w-24 h-24 bg-emerald-500/20 rounded-full flex items-center justify-center animate-ping absolute"></div>
+                        <div className="w-24 h-24 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center text-white shadow-xl relative z-10">
+                            <PhoneCall size={40} className="animate-bounce" />
+                        </div>
+                        <div className="z-10 relative">
+                            <h2 className="text-2xl font-black text-white tracking-tight">Incoming Transmission</h2>
+                            <p className="text-emerald-400 font-bold text-xs uppercase tracking-widest mt-2">Ravi Yadav is calling...</p>
+                        </div>
+                        <div className="flex gap-4 w-full relative z-10 pt-4">
+                            <button onClick={() => setIncomingCall(null)} className="flex-1 py-4 bg-red-500/10 text-red-500 font-black rounded-2xl hover:bg-red-500 hover:text-white transition-all uppercase tracking-widest text-xs border border-red-500/20">
+                                Ignore
+                            </button>
+                            <button onClick={() => navigate(`/call/${incomingCall}`)} className="flex-1 py-4 bg-emerald-500 text-white font-black rounded-2xl shadow-lg shadow-emerald-500/30 hover:bg-emerald-600 transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-2">
+                                <Video size={16} /> Accept
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

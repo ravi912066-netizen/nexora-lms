@@ -3,8 +3,9 @@ import api from '../api';
 import {
     Eye, CheckCircle, Clock, UserCheck, ShieldAlert,
     Code, MapPin, Mail, Phone, ExternalLink, AlertCircle,
-    TrendingUp, Award, Zap, FileText
+    TrendingUp, Award, Zap, FileText, Video
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
 
 const AdminStudentProfile = () => {
@@ -12,6 +13,7 @@ const AdminStudentProfile = () => {
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [studentReport, setStudentReport] = useState(null);
     const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
     const fetchStudents = async () => {
         try {
@@ -48,6 +50,16 @@ const AdminStudentProfile = () => {
             if (selectedStudent === studentId) handleSelectStudent(studentId);
         } catch (error) {
             alert('Approval fail: ' + error.message);
+        }
+    };
+
+    const handleInitiateCall = async (studentId) => {
+        try {
+            const res = await api.put(`/auth/call/start/${studentId}`);
+            navigate(`/call/${res.data.roomId}/${studentId}`);
+        } catch (error) {
+            console.error('Failed to initiate call:', error);
+            alert('Failed to initiate call');
         }
     };
 
@@ -137,6 +149,13 @@ const AdminStudentProfile = () => {
                                             <span className="flex items-center gap-1.5"><Mail size={14} /> {studentReport.user.email}</span>
                                             {studentReport.user.phone && <span className="flex items-center gap-1.5"><Phone size={14} /> {studentReport.user.phone}</span>}
                                             {studentReport.user.location && <span className="flex items-center gap-1.5"><MapPin size={14} /> {studentReport.user.location}</span>}
+                                        </div>
+                                        <div className="pt-2 flex justify-center lg:justify-start">
+                                            <button
+                                                onClick={() => handleInitiateCall(studentReport.user._id)}
+                                                className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl shadow-lg border-2 border-emerald-400/50 flex items-center gap-2 transition-all hover:scale-105 active:scale-95">
+                                                <Video size={18} /> Initiate Secure Comms
+                                            </button>
                                         </div>
                                     </div>
 

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { registerUser, loginUser, getMe, approveUser, verifyOtp, updateProfile } = require('../controllers/authController');
+const { registerUser, loginUser, getMe, approveUser, verifyOtp, updateProfile, initiateCall, endCall } = require('../controllers/authController');
 const { protect, admin } = require('../middleware/authMiddleware');
 const User = require('../models/User');
 const multer = require('multer');
@@ -48,5 +48,9 @@ router.get('/students', protect, admin, async (req, res) => {
 
 // Approve User (Admin)
 router.put('/approve/:id', protect, admin, approveUser);
+
+// 1-on-1 Video Call (Admin)
+router.put('/call/start/:id', protect, admin, initiateCall);
+router.put('/call/end/:id', protect, admin, endCall);
 
 module.exports = router;
