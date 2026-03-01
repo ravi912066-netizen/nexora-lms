@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import {
     User, Mail, Phone, Lock, Save, CheckCircle,
     MapPin, Code, Globe, Camera, Github, Link as LinkIcon,
-    AlertCircle, MessageSquare, Send, Clock, X, PhoneCall, Video
+    AlertCircle, MessageSquare, Send, Clock, X, PhoneCall, Video, ShieldQuestion
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
