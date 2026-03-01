@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: nexora-api
+    runtime: node
+    buildCommand: cd server && npm install
+    startCommand: cd server && node index.js
+    envVars:
+      - key: PORT
+        value: 5001
+      - key: NODE_VERSION
+        value: 18.x
+      - key: MONGO_URI
+        fromValue: <your-mongodb-atlas-uri>
+      - key: JWT_SECRET
+        fromValue: nexora_production_secret_2026

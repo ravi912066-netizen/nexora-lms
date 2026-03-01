@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../api';
 
 const AdminCourses = () => {
     const [courses, setCourses] = useState([]);
@@ -10,10 +10,7 @@ const AdminCourses = () => {
 
     const fetchCourses = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const { data } = await axios.get('http://localhost:5001/api/courses', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const { data } = await api.get('/courses');
             setCourses(data);
         } catch (error) {
             console.error('Error fetching courses', error);
@@ -29,10 +26,7 @@ const AdminCourses = () => {
     const handleCreate = async (e) => {
         e.preventDefault();
         try {
-            const token = localStorage.getItem('token');
-            await axios.post('http://localhost:5001/api/courses', { title, description }, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            await api.post('/courses', { title, description });
             setTitle('');
             setDescription('');
             fetchCourses();
@@ -44,14 +38,10 @@ const AdminCourses = () => {
 
     const handleSchedule = async (courseId) => {
         try {
-            const token = localStorage.getItem('token');
             const time = scheduledTimes[courseId];
             if (!time) return alert('Please select a time');
 
-            await axios.post('http://localhost:5001/api/live/start',
-                { courseId, scheduledTime: time },
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
+            await api.post('/live/start', { courseId, scheduledTime: time });
             alert('Class scheduled successfully!');
         } catch (error) {
             alert('Error scheduling class');
@@ -98,23 +88,17 @@ const AdminCourses = () => {
                             <p className="text-slate-500">{course.description}</p>
                         </div>
                         <div className="flex flex-col gap-2">
-                            <div className="flex items-center gap-2">
-                                <input
-                                    type="datetime-local"
-                                    className="px-3 py-1.5 border rounded-lg text-sm"
-                                    onChange={(e) => setScheduledTimes({ ...scheduledTimes, [course._id]: e.target.value })}
-                                />
-                                <button
-                                    onClick={() => handleSchedule(course._id)}
-                                    className="px-4 py-1.5 bg-blue-50 text-blue-600 font-semibold rounded-lg border border-blue-100 hover:bg-blue-100 text-sm"
-                                >
-                                    Schedule Time
-                                </button>
-                            </div>
-                            <a href={`/live/${course._id}`} className="px-4 py-2 bg-red-50 text-red-600 font-bold rounded-xl border border-red-200 hover:bg-red-100 transition-colors flex items-center justify-center gap-2">
-                                <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse"></span>
-                                Go Live Now
-                            </a>
+                            <input
+                                type="datetime-local"
+                                className="p-2 border rounded-lg text-sm"
+                                onChange={(e) => setScheduledTimes({ ...scheduledTimes, [course._id]: e.target.value })}
+                            />
+                            <button
+                                onClick={() => handleSchedule(course._id)}
+                                className="px-4 py-2 bg-indigo-100 text-indigo-700 font-bold rounded-lg hover:bg-indigo-200 transition-all text-xs"
+                            >
+                                Schedule Class
+                            </button>
                         </div>
                     </div>
                 ))}

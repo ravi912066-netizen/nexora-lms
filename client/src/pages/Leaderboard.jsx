@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../api';
 import { Trophy, Medal } from 'lucide-react';
 
 const Leaderboard = () => {
@@ -9,10 +9,8 @@ const Leaderboard = () => {
     useEffect(() => {
         const fetchLeaderboard = async () => {
             try {
-                const token = localStorage.getItem('token');
-                const { data } = await axios.get('http://localhost:5001/api/performance/leaderboard', {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+
+                const { data } = await api.get('/performance/leaderboard');
                 setLeaders(data);
             } catch (error) {
                 console.error('Error fetching leaderboard', error);

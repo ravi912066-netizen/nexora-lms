@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../api';
 import { CheckCircle, ExternalLink } from 'lucide-react';
 
 const AdminAssignments = () => {
@@ -19,12 +19,12 @@ const AdminAssignments = () => {
 
     const fetchData = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const config = { headers: { Authorization: `Bearer ${token}` } };
+
+
 
             const [coursesRes, subsRes] = await Promise.all([
-                axios.get('http://localhost:5001/api/courses', config),
-                axios.get('http://localhost:5001/api/assignments/submissions', config)
+                api.get('/courses'),
+                api.get('/assignments/submissions')
             ]);
 
             setCourses(coursesRes.data);
@@ -42,11 +42,9 @@ const AdminAssignments = () => {
     const handleCreate = async (e) => {
         e.preventDefault();
         try {
-            const token = localStorage.getItem('token');
-            await axios.post('http://localhost:5001/api/assignments', {
+
+            await api.post('/assignments', {
                 courseId, title, description, problemUrl, documentUrl, xp
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
             });
             alert('Assignment created successfully!');
             setTitle('');

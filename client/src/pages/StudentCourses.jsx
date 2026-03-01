@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../api';
 import { Link } from 'react-router-dom';
 import { BookOpen, Clock, PlayCircle } from 'lucide-react';
 
@@ -10,10 +10,8 @@ const StudentCourses = () => {
     useEffect(() => {
         const fetchCourses = async () => {
             try {
-                const token = localStorage.getItem('token');
-                const { data } = await axios.get('http://localhost:5001/api/courses', {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+
+                const { data } = await api.get('/courses');
                 setCourses(data);
             } catch (error) {
                 console.error('Error fetching courses', error);

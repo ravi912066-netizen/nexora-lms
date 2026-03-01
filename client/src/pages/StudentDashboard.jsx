@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../api';
 import { useAuth } from '../context/AuthContext';
 import { Trophy, BookOpen, CheckCircle, TrendingUp, PlayCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -25,12 +25,12 @@ const StudentDashboard = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const token = localStorage.getItem('token');
-                const config = { headers: { Authorization: `Bearer ${token}` } };
+                
+                
 
                 const [perfRes, coursesRes] = await Promise.all([
-                    axios.get('http://localhost:5001/api/performance/me', config),
-                    axios.get('http://localhost:5001/api/courses', config)
+                    api.get('/performance/me'),
+                    api.get('/courses')
                 ]);
 
                 setPerformance(perfRes.data);

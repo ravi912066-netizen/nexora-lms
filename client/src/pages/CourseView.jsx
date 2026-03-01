@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api';
 import { PlayCircle, CheckCircle, FileText, LayoutList } from 'lucide-react';
 
 const CourseView = () => {
@@ -19,12 +19,12 @@ const CourseView = () => {
     useEffect(() => {
         const fetchCourseDetails = async () => {
             try {
-                const token = localStorage.getItem('token');
-                const config = { headers: { Authorization: `Bearer ${token}` } };
+
+
 
                 const [courseRes, assignRes] = await Promise.all([
-                    axios.get(`http://localhost:5001/api/courses/${id}`, config),
-                    axios.get(`http://localhost:5001/api/assignments/course/${id}`, config)
+                    api.get(`/courses/${id}`),
+                    api.get(`/assignments/course/${id}`)
                 ]);
 
                 setCourseData(courseRes.data);
@@ -32,13 +32,13 @@ const CourseView = () => {
 
                 // Check for live class
                 try {
-                    const liveRes = await axios.get(`http://localhost:5001/api/live/room/${id}`, config);
+                    const liveRes = await api.get(`/live/room/${id}`);
                     setActiveLiveRoom(liveRes.data);
                 } catch (e) {
                     setActiveLiveRoom(null);
                     // If no live room, check for scheduled room
                     try {
-                        const scheduledRes = await axios.get(`http://localhost:5001/api/live/scheduled/${id}`, config);
+                        const scheduledRes = await api.get(`/live/scheduled/${id}`);
                         setScheduledClass(scheduledRes.data);
                     } catch (err) {
                         setScheduledClass(null);
@@ -58,12 +58,10 @@ const CourseView = () => {
         if (!urls[assignmentId] && !codes[assignmentId]) return alert('Please paste your Newton URL or Source Code first');
         try {
             setSubmitLoading(true);
-            const token = localStorage.getItem('token');
-            await axios.post(`http://localhost:5001/api/assignments/${assignmentId}/submit`, {
+
+            await api.post(`/assignments/${assignmentId}/submit`, {
                 url: urls[assignmentId],
                 code: codes[assignmentId]
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
             });
             alert('Work submitted successfully! XP rewarded.');
         } catch (error) {

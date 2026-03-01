@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api';
 import { useAuth } from '../context/AuthContext';
 import { Users, Send, CheckCircle, StopCircle, RefreshCw } from 'lucide-react';
 
@@ -27,17 +27,12 @@ const LiveClass = () => {
 
     const checkLiveStatus = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const res = await axios.get(`http://localhost:5001/api/live/room/${courseId}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const res = await api.get(`/live/room/${courseId}`);
             setLiveData(res.data);
 
             // If student joins, optionally hit the join endpoint once
             if (user.role === 'student' && res.data) {
-                await axios.post('http://localhost:5001/api/live/join', { roomId: res.data.roomId }, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+                await api.post('/live/join', { roomId: res.data.roomId });
             }
         } catch (error) {
             setLiveData(null);
@@ -56,11 +51,8 @@ const LiveClass = () => {
 
     const startClass = async () => {
         try {
-            const token = localStorage.getItem('token');
             const roomId = `nexus-live-${courseId}-${Date.now()}`;
-            await axios.post('http://localhost:5001/api/live/start', { courseId, roomId }, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            await api.post('/live/start', { courseId, roomId });
             checkLiveStatus();
         } catch (error) {
             alert('Failed to start class');
@@ -70,14 +62,11 @@ const LiveClass = () => {
     const pushQuestion = async (e) => {
         e.preventDefault();
         try {
-            const token = localStorage.getItem('token');
-            await axios.post('http://localhost:5001/api/live/push', {
+            await api.post('/live/push', {
                 roomId: liveData.roomId,
                 title: questionTitle,
                 problemUrl: problemUrl,
                 xp: Number(xp)
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
             });
             alert('Question Pushed to all students!');
             setQuestionTitle('');
@@ -100,10 +89,7 @@ const LiveClass = () => {
     const endClass = async () => {
         if (!window.confirm("End this live class?")) return;
         try {
-            const token = localStorage.getItem('token');
-            await axios.post('http://localhost:5001/api/live/end', { roomId: liveData.roomId }, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            await api.post('/live/end', { roomId: liveData.roomId });
             navigate(user.role === 'admin' ? '/admin/courses' : '/courses');
         } catch (error) {
             alert('Failed to end class');

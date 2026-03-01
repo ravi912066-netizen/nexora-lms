@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../api';
 import { Eye, CheckCircle, Clock } from 'lucide-react';
 
 const AdminStudentProfile = () => {
@@ -10,10 +10,7 @@ const AdminStudentProfile = () => {
     // Fetch all students
     useEffect(() => {
         const fetchStudents = async () => {
-            const token = localStorage.getItem('token');
-            const res = await axios.get('http://localhost:5001/api/auth/students', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const res = await api.get('/auth/students');
             setStudents(res.data);
         };
         fetchStudents();
@@ -23,10 +20,7 @@ const AdminStudentProfile = () => {
     const handleSelectStudent = async (studentId) => {
         setSelectedStudent(studentId);
         try {
-            const token = localStorage.getItem('token');
-            const res = await axios.get(`http://localhost:5001/api/performance/admin/student/${studentId}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const res = await api.get(`/performance/admin/student/${studentId}`);
             setStudentReport(res.data);
         } catch (error) {
             console.error('Error fetching student report', error);

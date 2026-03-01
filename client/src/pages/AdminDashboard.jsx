@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../api';
 import { Users, BookOpen, TrendingUp, BarChart } from 'lucide-react';
 
 const AdminDashboard = () => {
@@ -9,10 +9,8 @@ const AdminDashboard = () => {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const token = localStorage.getItem('token');
-                const { data } = await axios.get('http://localhost:5001/api/performance/analytics', {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+
+                const { data } = await api.get('/performance/analytics');
                 setStats(data);
             } catch (error) {
                 console.error('Error fetching admin analytics', error);
